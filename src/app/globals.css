@@ -1,1 +1,19 @@
-@import "tailwindcss";
+/* @import 'tailwindcss'; */
+
+/* a {
+  pointer-events: none;
+} */
+
+.banner {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  position: relative;
+}
+
+.menu {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}

@@ -4,6 +4,8 @@ import { getStoryblokApi } from '@/lib/storyblok'
 export default async function Page({ params }) {
   const { slug } = await params
 
+  console.log(slug)
+
   // array with all language codes configured in the space is defined:
   const availableLanguages = ['es']
 
@@ -14,28 +16,45 @@ export default async function Page({ params }) {
     : undefined
 
   // if language slug exists, first array element is subsequently removed so that the full slug used for the API request
-  // does not contain any language-specific information:
+  // and does not contain any language-specific information:
   if (language) {
     slug.shift()
   }
 
-  const fullSlug = slug ? slug.join('/') : 'home'
+  // If slug is missing or empty after removing language, use 'home'
+  const fullSlug = !slug || slug.length === 0 ? 'home' : slug.join('/')
 
   const storyblokApi = getStoryblokApi()
-  let { data } = await storyblokApi.get(`cdn/stories/${fullSlug}`, {
+  const res = await storyblokApi.get(`cdn/stories/${fullSlug}`, {
     version: 'draft',
     resolve_relations: 'featured-articles.articles',
     //  use the resolve_relations parameter to receive the complete story object for referenced stories.
     language,
   })
 
+  // console.log('Page API Hit:', pageData)
+  console.log(fullSlug, res.headers)
+
+  let { data: navData } = await storyblokApi.get('cdn/stories/navigation', {
+    version: 'draft',
+    language,
+  })
+
+  console.log('Nav API Hit:', navData)
+
+  const isNavigationPage = fullSlug === 'navigation'
+
   return (
-    <StoryblokStory
-      story={data.story}
-      bridgeOptions={{
-        resolveRelations: 'featured-articles.articles',
-        // Also add it as the bridgeOptions argument to StoryblokStory.
-      }}
-    />
+    <div className='page'>
+      {!isNavigationPage && <StoryblokStory story={navData.story} />}
+      <StoryblokStory
+        story={res.data.story}
+        bridgeOptions={{
+          resolveRelations: 'featured-articles.articles',
+          preventClicks: true,
+          // Also add it as the bridgeOptions argument to StoryblokStory.
+        }}
+      />
+    </div>
   )
 }

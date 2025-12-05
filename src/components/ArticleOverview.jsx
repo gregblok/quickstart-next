@@ -23,7 +23,12 @@ export default async function ArticleOverview() {
       <ul>
         {articles.map((article) => (
           <li key={article.uuid}>
-            <Link href={`/${article.full_slug}`}>{article.name}</Link>
+            <Link
+              className='text-blue-600 underline hover:text-blue-800'
+              href={`/${article.full_slug}`}
+            >
+              {article.name}
+            </Link>
           </li>
         ))}
       </ul>
